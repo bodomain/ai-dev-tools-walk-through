@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Game - Modern React Edition</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+        }
+
+        .game-title {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1rem;
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
+
+        .game-board {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            display: inline-block;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(20, 1fr);
+            gap: 1px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            padding: 5px;
+        }
+
+        .cell {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            transition: all 0.1s ease;
+        }
+
+        .cell.empty {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .cell.snake {
+            background: linear-gradient(45deg, #4ade80, #22c55e);
+            box-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
+        }
+
+        .cell.snake.head {
+            background: linear-gradient(45deg, #22c55e, #16a34a);
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.7);
+        }
+
+        .cell.food {
+            background: linear-gradient(45deg, #ef4444, #dc2626);
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
+            animation: pulse 1s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            color: white;
+            font-weight: 500;
+        }
+
+        .score, .high-score {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .controls {
+            margin: 20px 0;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        .game-over {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .game-over-content {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-over h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #ef4444;
+        }
+
+        .restart-btn {
+            background: linear-gradient(45deg, #3b82f6, #1d4ed8);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .start-screen {
+            color: white;
+            text-align: center;
+        }
+
+        .start-btn {
+            background: linear-gradient(45deg, #10b981, #059669);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .loading {
+            color: white;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+    </style>
+<base target="_blank">
+</head>
+<body>
+    <div id="root">
+        <div class="loading">Loading Snake Game...</div>
+    </div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useCallback, useRef } = React;
+
+        const GRID_SIZE = 20;
+        const CELL_SIZE = 20;
+        const INITIAL_SPEED = 150;
+
+        const DIRECTIONS = {
+            UP: { x: 0, y: -1 },
+            DOWN: { x: 0, y: 1 },
+            LEFT: { x: -1, y: 0 },
+            RIGHT: { x: 1, y: 0 }
+        };
+
+        const SnakeGame = () => {
+            const [snake, setSnake] = useState([{ x: 10, y: 10 }]);
+            const [food, setFood] = useState({ x: 15, y: 15 });
+            const [direction, setDirection] = useState(DIRECTIONS.RIGHT);
+            const [gameState, setGameState] = useState('start'); // 'start', 'playing', 'gameOver'
+            const [score, setScore] = useState(0);
+            const [highScore, setHighScore] = useState(0);
+            const [speed, setSpeed] = useState(INITIAL_SPEED);
+            const directionRef = useRef(DIRECTIONS.RIGHT);
+            const gameLoopRef = useRef(null);
+
+            // Load high score from localStorage
+            useEffect(() => {
+                const savedHighScore = localStorage.getItem('snakeHighScore');
+                if (savedHighScore) {
+                    setHighScore(parseInt(savedHighScore));
+                }
+            }, []);
+
+            // Generate random food position
+            const generateFood = useCallback(() => {
+                let newFood;
+                do {
+                    newFood = {
+                        x: Math.floor(Math.random() * GRID_SIZE),
+                        y: Math.floor(Math.random() * GRID_SIZE)
+                    };
+                } while (snake.some(segment => segment.x === newFood.x && segment.y === newFood.y));
+                return newFood;
+            }, [snake]);
+
+            // Check collision
+            const checkCollision = useCallback((head, newSnake) => {
+                // Wall collision
+                if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE) {
+                    return true;
+                }
+                // Self collision
+                if (newSnake.some(segment => segment.x === head.x && segment.y === head.y)) {
+                    return true;
+                }
+                return false;
+            }, []);
+
+            // Move snake
+            const moveSnake = useCallback(() => {
+                if (gameState !== 'playing') return;
+
+                setSnake(currentSnake => {
+                    const newSnake = [...currentSnake];
+                    const head = { ...newSnake[0] };
+                    
+                    // Update head position based on current direction
+                    head.x += directionRef.current.x;
+                    head.y += directionRef.current.y;
+
+                    // Check collision
+                    if (checkCollision(head, newSnake)) {
+                        setGameState('gameOver');
+                        return currentSnake;
+                    }
+
+                    newSnake.unshift(head);
+
+                    // Check if snake ate food
+                    if (head.x === food.x && head.y === food.y) {
+                        setScore(prev => {
+                            const newScore = prev + 10;
+                            // Increase speed slightly
+                            if (newScore % 50 === 0) {
+                                setSpeed(prevSpeed => Math.max(50, prevSpeed - 10));
+                            }
+                            return newScore;
+                        });
+                        setFood(generateFood());
+                    } else {
+                        newSnake.pop();
+                    }
+
+                    return newSnake;
+                });
+            }, [gameState, food, generateFood, checkCollision]);
+
+            // Game loop
+            useEffect(() => {
+                if (gameState === 'playing') {
+                    gameLoopRef.current = setInterval(moveSnake, speed);
+                } else {
+                    if (gameLoopRef.current) {
+                        clearInterval(gameLoopRef.current);
+                    }
+                }
+
+                return () => {
+                    if (gameLoopRef.current) {
+                        clearInterval(gameLoopRef.current);
+                    }
+                };
+            }, [gameState, speed, moveSnake]);
+
+            // Handle keyboard input
+            useEffect(() => {
+                const handleKeyPress = (e) => {
+                    if (gameState !== 'playing') return;
+
+                    let newDirection = directionRef.current;
+                    
+                    switch (e.key) {
+                        case 'ArrowUp':
+                            if (directionRef.current !== DIRECTIONS.DOWN) {
+                                newDirection = DIRECTIONS.UP;
+                            }
+                            break;
+                        case 'ArrowDown':
+                            if (directionRef.current !== DIRECTIONS.UP) {
+                                newDirection = DIRECTIONS.DOWN;
+                            }
+                            break;
+                        case 'ArrowLeft':
+                            if (directionRef.current !== DIRECTIONS.RIGHT) {
+                                newDirection = DIRECTIONS.LEFT;
+                            }
+                            break;
+                        case 'ArrowRight':
+                            if (directionRef.current !== DIRECTIONS.LEFT) {
+                                newDirection = DIRECTIONS.RIGHT;
+                            }
+                            break;
+                        default:
+                            return;
+                    }
+                    
+                    directionRef.current = newDirection;
+                    setDirection(newDirection);
+                };
+
+                window.addEventListener('keydown', handleKeyPress);
+                return () => window.removeEventListener('keydown', handleKeyPress);
+            }, [gameState]);
+
+            // Update high score
+            useEffect(() => {
+                if (score > highScore) {
+                    setHighScore(score);
+                    localStorage.setItem('snakeHighScore', score.toString());
+                }
+            }, [score, highScore]);
+
+            // Start game
+            const startGame = () => {
+                setSnake([{ x: 10, y: 10 }]);
+                setFood(generateFood());
+                setDirection(DIRECTIONS.RIGHT);
+                directionRef.current = DIRECTIONS.RIGHT;
+                setScore(0);
+                setSpeed(INITIAL_SPEED);
+                setGameState('playing');
+            };
+
+            // Restart game
+            const restartGame = () => {
+                startGame();
+            };
+
+            // Render grid
+            const renderGrid = () => {
+                const grid = [];
+                for (let y = 0; y < GRID_SIZE; y++) {
+                    for (let x = 0; x < GRID_SIZE; x++) {
+                        let cellType = 'empty';
+                        
+                        if (snake.some(segment => segment.x === x && segment.y === y)) {
+                            cellType = 'snake';
+                            if (snake[0].x === x && snake[0].y === y) {
+                                cellType = 'snake head';
+                            }
+                        } else if (food.x === x && food.y === y) {
+                            cellType = 'food';
+                        }
+                        
+                        grid.push(
+                            <div
+                                key={`${x}-${y}`}
+                                className={`cell ${cellType}`}
+                            />
+                        );
+                    }
+                }
+                return grid;
+            };
+
+            if (gameState === 'start') {
+                return (
+                    <div className="game-container">
+                        <div className="start-screen">
+                            <h1 className="game-title">🐍 Snake Game</h1>
+                            <p className="game-subtitle">Modern React Edition</p>
+                            <div style={{ margin: '30px 0' }}>
+                                <div style={{ fontSize: '4rem', marginBottom: '20px' }}>🐍</div>
+                                <p style={{ marginBottom: '10px' }}>Use arrow keys to control the snake</p>
+                                <p style={{ marginBottom: '20px' }}>Eat the red food to grow and increase your score</p>
+                                <p style={{ fontSize: '0.9rem', opacity: 0.7 }}>
+                                    High Score: {highScore}
+                                </p>
+                            </div>
+                            <button className="start-btn" onClick={startGame}>
+                                Start Game
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (gameState === 'gameOver') {
+                return (
+                    <div className="game-over">
+                        <div className="game-over-content">
+                            <h2>Game Over!</h2>
+                            <p style={{ fontSize: '1.2rem', marginBottom: '10px' }}>
+                                Final Score: <strong>{score}</strong>
+                            </p>
+                            <p style={{ marginBottom: '20px' }}>
+                                {score > highScore ? '🎉 New High Score!' : `High Score: ${highScore}`}
+                            </p>
+                            <button className="restart-btn" onClick={restartGame}>
+                                Play Again
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="game-container">
+                    <h1 className="game-title">🐍 Snake Game</h1>
+                    <p className="game-subtitle">Modern React Edition</p>
+                    
+                    <div className="game-info">
+                        <div className="score">Score: {score}</div>
+                        <div className="high-score">High Score: {highScore}</div>
+                    </div>
+
+                    <div className="game-board">
+                        <div className="grid">
+                            {renderGrid()}
+                        </div>
+                    </div>
+
+                    <div className="controls">
+                        <p>Use arrow keys to move • Eat red food to grow</p>
+                        <p style={{ fontSize: '0.8rem', marginTop: '10px', opacity: 0.7 }}>
+                            Speed increases every 50 points
+                        </p>
+                    </div>
+                </div>
+            );
+        };
+
+        // Render the app
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<SnakeGame />);
+    </script>
+</body>
+</html>
