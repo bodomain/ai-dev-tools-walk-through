@@ -1,0 +1,57 @@
+.tank {
+  position: relative;
+  width: 800px;
+  height: 600px;
+  background-color: #87ceeb; /* Sky blue */
+  border: 3px solid #4682b4; /* Steel blue */
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.fish {
+  position: absolute;
+  width: 50px;
+  height: 30px;
+}
+
+.fish-body {
+  position: absolute;
+  width: 40px;
+  height: 30px;
+  background-color: #ffb400; /* Orange */
+  border-radius: 50%;
+}
+
+.fish-tail {
+  position: absolute;
+  right: -15px;
+  top: 5px;
+  width: 20px;
+  height: 20px;
+  background-color: #ff8c00; /* Darker orange */
+  border-radius: 50%;
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+}
+
+.food {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: saddlebrown;
+  border-radius: 50%;
+}
+
+.coin {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background-color: gold;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: darkgoldenrod;
+  cursor: pointer;
+  border: 2px solid darkgoldenrod;
+}
