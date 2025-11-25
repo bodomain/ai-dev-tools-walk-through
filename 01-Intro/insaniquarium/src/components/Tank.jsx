@@ -12,8 +12,8 @@ const Tank = ({
   onCollectCoin 
 }) => {
   const handleTankClick = (e) => {
-    // Avoid dropping food when clicking a coin
-    if (e.target.classList.contains('coin')) {
+    // Avoid dropping food when clicking a coin or fish
+    if (e.target.classList.contains('coin') || e.target.classList.contains('fish')) {
       return;
     }
     const rect = e.currentTarget.getBoundingClientRect();
@@ -25,7 +25,15 @@ const Tank = ({
   return (
     <div className="tank" onClick={handleTankClick}>
       {fishes.map(fish => (
-        <Fish key={fish.id} x={fish.x} y={fish.y} />
+        <Fish 
+          key={fish.id} 
+          x={fish.x} 
+          y={fish.y} 
+          hunger={fish.hunger}
+          color={fish.color}
+          tailColor={fish.tailColor}
+          size={fish.size}
+        />
       ))}
       {foodPellets.map(food => (
         <Food key={food.id} x={food.x} y={food.y} />
