@@ -11,11 +11,15 @@
   will-change: filter;
   transition: filter 300ms;
 }
+.logo {
+  /* Make logos monochrome */
+  filter: grayscale(1) contrast(.95);
+}
 .logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+  filter: grayscale(1) contrast(.95) drop-shadow(0 0 2em #9b9b9baa);
 }
 .logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+  filter: grayscale(1) contrast(.95) drop-shadow(0 0 2em #8f8f8faa);
 }
 
 @keyframes logo-spin {
